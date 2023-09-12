@@ -202,11 +202,11 @@ Certain properties are retrieved from FOLIO configuration once a user has logged
 
 Currently, edge-sip2 implements select SIP messages. Below, is the list of all implemented messages.
 
-|SIP Request|Implemented|Notes|
-|-----------|-----------|-----|
+|SIP Request|Implemented|Notes|Supported Optional Fields|
+|-----------|-----------|-----|-------------------------|
 |Patron Status Request|No||
 |Checkout|Yes|Response SIP fields hardcoded: "renewal ok" is set to "N", "magnetic media" is set to "U". SIP field "desensitize" is set to "Y" is the FOLIO check out succeeded and "N" when there is failure. Fee/fines related fields are not implemented. The "due date" format is the same as other SIP date/time format strings: "YYYYMMDDZZZZHHMMSS".|
-|Checkin|Yes|Response SIP fields hardcoded: "alert" is set to "N", "magnetic media" is set to "U". Most optional SIP fields are not implemented. The "resensitize" field will be set to "Y" if the FOLIO check in succeeded and "N" if there was a failure.|
+|Checkin|Yes|Response SIP fields hardcoded: "alert" is set to "N", "magnetic media" is set to "U". Most optional SIP fields are not implemented. The "resensitize" field will be set to "Y" if the FOLIO check in succeeded and "N" if there was a failure.|AJ: title, CK: media type, CS: callnumber, CT: destination location, CV: alert type|
 |Block Patron|No||
 |SC Status|Yes||
 |Request ACS Resend|Yes||
@@ -387,3 +387,21 @@ at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker).
 
 Other [modules](https://dev.folio.org/source-code/#server-side) are described,
 with further FOLIO Developer documentation at [dev.folio.org](https://dev.folio.org/)
+
+
+### Glossary: Supported SIP2 fields to FOLIO source
+
+|Field Name|Field ID|FOLIO Source|Notes|
+|----------|--------|------------|-----|
+|alert|||'Y' will be set if there is an hold or recall for this item or the item status is in 'transit'|
+|alert type|CV||00 unknown --> set if no other status can be set
+01 hold for this library  --> there is an active hold or recall and items status is not in 'transit' 
+02 hold for other branch --> there is an active hold or recall and items status is in 'transit' 
+03 hold for ILL --> will never be set since ILL not implemented
+04 send to other branch --> there is no active hold or recall and items status is in 'transit'
+99 Other --> will never be set|
+|callnumber|CS|Check-in-by-barcode-response --> callnumber||
+|destination location|CT|Check-in-by-barcode-response --> inTransitDestinationServicePoint.name|if there is an active hold the pickup service point is set|
+|media type|CK|Check-in-by-barcode-response --> materialType.name||
+|title|AJ|Check-in-by-barcode-response --> title||
+
